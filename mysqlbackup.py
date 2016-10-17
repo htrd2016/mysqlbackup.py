@@ -4,12 +4,16 @@ import time
 
 def backuptable(srccur, srcconn, descur, desconn, tablename):
    currentTime = int(time.mktime(datetime.datetime.now().timetuple()))
-   print currentTime
 
    sql = 'select * from '+ tablename +' where clock < %s'
-   srccur.execute(sql, currentTime)
+   count = srccur.execute(sql, currentTime)
+   print '['+tablename+']', currentTime, 'row count=', count
+   
+   if count<=0:
+     return 0
+
    rows = srccur.fetchall()
-   print rows
+#   print rows
 
    sql = 'insert into '+ tablename +' values(%s, %s, %s, %s) '
    descur.executemany(sql, rows)
@@ -18,7 +22,7 @@ def backuptable(srccur, srcconn, descur, desconn, tablename):
    sql = 'delete from '+ tablename +' where clock < %s'
    srccur.execute(sql, currentTime)
    srcconn.commit()
-   return 0;
+   return 0
 
 
 def backup(): 
@@ -49,5 +53,5 @@ def backup():
 if __name__ == '__main__':
    while(1):
      backup()
-     time.sleep(10)
+     time.sleep(5*60)
      #time.sleep(60*60*24)
