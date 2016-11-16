@@ -2,6 +2,8 @@ import MySQLdb   #yum install MySQL-python
 import datetime
 import time
 import sys
+import os
+import fcntl
 
 mysql_ip_src = sys.argv[1]
 mysql_username_src = sys.argv[2]
@@ -132,7 +134,20 @@ def backup(timestamp):
 
   return -1
      
+fh=0
+
+def run_once():
+    global fh
+    fh=open(os.path.realpath(__file__),'r')
+    try:
+        fcntl.flock(fh,fcntl.LOCK_EX|fcntl.LOCK_NB)
+    except:
+        print "try to exit..."
+        os._exit(0)
+
+
 if __name__ == '__main__':
+    run_once()
     print "-----------start at",time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())),"----------------"
     backup(days_before_to_backup)
     print "-----------end at",time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())),"----------------"
